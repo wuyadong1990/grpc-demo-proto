@@ -1,0 +1,92 @@
+syntax = "proto3";
+option go_package = "github.com/wuyadong1990/grpc-demo-proto/user";
+
+package user;
+
+import "google/api/annotations.proto";
+
+service UserService {
+    //  用户资料
+    rpc UserInfo(UserBase) returns (UserBase) {
+        option (google.api.http) = {
+			post: "/user"
+			body:"*"
+		};
+    }
+   //  用户删除
+    rpc UserDelete(UserID) returns (UserID) {
+        option (google.api.http) = {
+			delete: "/user/{id}"
+		};
+    }
+   //  用户查询一个
+    rpc UserQueryOne(UserID) returns (UserBase) {
+        option (google.api.http) = {
+			get: "/user/{id}"
+			response_body:"*"
+		};
+    }
+   //  用户查询全部
+    rpc UserQueryAll(UserAllOption) returns (UserAll) {
+        option (google.api.http) = {
+			get: "/user"
+			response_body:"*"
+		};
+    }
+}
+
+//  用户性别
+enum UserSex {
+    DEFAULT = 0;
+    MEN = 1;
+    WOMEN = 2;
+}
+//  注入标签: https://github.com/favadi/protoc-go-inject-tag
+//  用户基本信息
+message UserBase {
+   //  @inject_tag: db:"id"
+    int64 id = 1;
+   //  @inject_tag: db:"user_name" valid:"required~用户名称必须存在"
+    string user_name = 2;
+   //  @inject_tag: db:"iphone" valid:"required~手机号必须存在"
+    string iphone = 3;
+   //  @inject_tag: db:"password"
+    string password = 4;
+   //  @inject_tag: db:"sex"
+    UserSex sex = 5;
+}//  用户ID
+message UserID {
+   //  用户id
+    int64 id = 1;
+}
+//  用户全部选项
+message UserAllOption {
+   //  用户性别
+    UserSex sex = 1;
+   //  页数
+    Page page = 2;
+   //  用户名称
+    string user_name = 3;
+}
+//  用户全部
+message UserAll {
+   //  用户信息
+    repeated UserBase all = 1;
+   //  页数
+    Page page = 2;
+}
+//  空消息
+message Null {}
+//  分页
+message Page {
+   //  页
+    int64 page_index = 1;
+   //  每页大小
+    int64 page_size = 2;
+   //  总页数
+    int64 page_total = 3;
+   //  条数
+    int64 count = 4;
+   //  总条数
+    int64 total = 5;
+}
